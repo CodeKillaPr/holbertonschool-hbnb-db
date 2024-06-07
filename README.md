@@ -1,56 +1,53 @@
+---
 # HBnB Evolution Application
 
-Este proyecto es una aplicación de gestión de lugares (places) basada en Flask, que incluye funcionalidades para gestionar usuarios, ciudades, países, revisiones y amenidades. La aplicación se puede ejecutar en un entorno Dockerizado usando Gunicorn como servidor de aplicaciones.
+This project is a place management application based on Flask, which includes functionalities for managing users, cities, countries, reviews, and amenities. The application can be run in a Dockerized environment using Gunicorn as the application server.
 
-## Estructura del Proyecto
+## Project Structure
 
-### Modelos
+### Models
 
-- **BaseModel**: Clase abstracta que define atributos y métodos comunes.
-- **City**: Representa una ciudad.
-- **DataManager**: Gestiona la persistencia de datos.
-- **Review**: Representa una revisión.
-- **Place**: Representa un lugar.
-- **User**: Representa un usuario.
+- **BaseModel**: Abstract class defining common attributes and methods.
+- **City**: Represents a city.
+- **DataManager**: Manages data persistence.
+- **Review**: Represents a review.
+- **Place**: Represents a place.
+- **User**: Represents a user.
 
 ### Endpoints
 
-#### Usuarios
+#### Users
+- **POST /users**: Create a new user.
+- **GET /users**: Retrieve a list of all users.
+- **GET /users/{user_id}**: Retrieve details of a specific user.
+- **PUT /users/{user_id}**: Update an existing user.
+- **DELETE /users/{user_id}**: Delete a user.
 
-- **POST /users**: Crear un nuevo usuario.
-- **GET /users**: Obtener una lista de todos los usuarios.
-- **GET /users/{user_id}**: Obtener detalles de un usuario específico.
-- **PUT /users/{user_id}**: Actualizar un usuario existente.
-- **DELETE /users/{user_id}**: Eliminar un usuario.
+#### Cities
+- **POST /cities**: Create a new city.
+- **GET /cities**: Retrieve a list of all cities.
+- **GET /cities/{city_id}**: Retrieve details of a specific city.
+- **PUT /cities/{city_id}**: Update an existing city.
+- **DELETE /cities/{city_id}**: Delete a city.
 
-#### Ciudades
+#### Reviews
+- **POST /places/{place_id}/reviews**: Create a new review for a specific place.
+- **GET /users/{user_id}/reviews**: Retrieve all reviews written by a specific user.
+- **GET /places/{place_id}/reviews**: Retrieve all reviews for a specific place.
+- **GET /reviews/{review_id}**: Retrieve details of a specific review.
+- **PUT /reviews/{review_id}**: Update an existing review.
+- **DELETE /reviews/{review_id}**: Delete a review.
 
-- **POST /cities**: Crear una nueva ciudad.
-- **GET /cities**: Obtener una lista de todas las ciudades.
-- **GET /cities/{city_id}**: Obtener detalles de una ciudad específica.
-- **PUT /cities/{city_id}**: Actualizar una ciudad existente.
-- **DELETE /cities/{city_id}**: Eliminar una ciudad.
+#### Amenities
+- **POST /amenities**: Create a new amenity.
+- **GET /amenities**: Retrieve a list of all amenities.
+- **GET /amenities/{amenity_id}**: Retrieve details of a specific amenity.
+- **PUT /amenities/{amenity_id}**: Update an existing amenity.
+- **DELETE /amenities/{amenity_id}**: Delete an amenity.
 
-#### Revisiones
+### UML Diagram
 
-- **POST /places/{place_id}/reviews**: Crear una nueva revisión para un lugar específico.
-- **GET /users/{user_id}/reviews**: Obtener todas las revisiones escritas por un usuario específico.
-- **GET /places/{place_id}/reviews**: Obtener todas las revisiones de un lugar específico.
-- **GET /reviews/{review_id}**: Obtener detalles de una revisión específica.
-- **PUT /reviews/{review_id}**: Actualizar una revisión existente.
-- **DELETE /reviews/{review_id}**: Eliminar una revisión.
-
-#### Amenidades
-
-- **POST /amenities**: Crear una nueva amenidad.
-- **GET /amenities**: Obtener una lista de todas las amenidades.
-- **GET /amenities/{amenity_id}**: Obtener detalles de una amenidad específica.
-- **PUT /amenities/{amenity_id}**: Actualizar una amenidad existente.
-- **DELETE /amenities/{amenity_id}**: Eliminar una amenidad.
-
-### Diagrama UML
-
-#### Diagrama de Clases
+#### Class Diagram
 
 ```mermaid
 classDiagram
@@ -111,7 +108,7 @@ classDiagram
     BaseModel <|-- User
 ```
 
-#### Diagrama de Despliegue
+#### Deployment Diagram
 
 ```mermaid
 stateDiagram-v2
@@ -132,78 +129,78 @@ stateDiagram-v2
     Docker --> HostMachine
 ```
 
-## Pruebas Unitarias
+## Unit Tests
 
-### Pruebas de Usuarios
+### User Tests
 
-Archivo: `tests/test_user_endpoints.py`
+File: `tests/test_user_endpoints.py`
 
-### Pruebas de Ciudades
+### City Tests
 
-Archivo: `tests/test_country_city_endpoints.py`
+File: `tests/test_country_city_endpoints.py`
 
-### Pruebas de Revisiones
+### Review Tests
 
-Archivo: `tests/test_review_endpoints.py`
+File: `tests/test_review_endpoints.py`
 
-## Dockerización
+## Dockerization
 
 ### `Dockerfile`
 
 ```dockerfile
-# Utilizar una imagen base de Alpine Linux con Python
+# Use an Alpine Linux base image with Python
 FROM python:3.9-alpine
 
-# Establecer variables de entorno
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PORT 8000
 
-# Crear y establecer el directorio de trabajo
+# Create and set the working directory
 WORKDIR /app
 
-# Instalar dependencias del sistema
+# Install system dependencies
 RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
 
-# Copiar el archivo de requerimientos
+# Copy the requirements file
 COPY requirements.txt /app/
 
-# Instalar las dependencias de Python
+# Install Python dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Copiar el código fuente de la aplicación
+# Copy the application source code
 COPY . /app/
 
-# Exponer el puerto en el que correrá la aplicación
+# Expose the port the application will run on
 EXPOSE $PORT
 
-# Crear un volumen para la persistencia de datos
+# Create a volume for data persistence
 VOLUME /app/data
 
-# Configurar Gunicorn como el servidor de aplicaciones
+# Configure Gunicorn as the application server
 CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} api.review_manager:app"]
 ```
 
-### Construcción y Ejecución del Contenedor Docker
+### Building and Running the Docker Container
 
-#### Construir la imagen
-
-```sh
-docker build -t holberton_hbnb .
-```
-
-#### Ejecutar el contenedor
+#### Build the image
 
 ```sh
-docker run -d -p 8000:8000 --name holberton_hbnb_container -v $(pwd)/data:/app/data -e PORT=8000 holberton_hbnb
+docker build -t my_flask_app .
 ```
 
-### Verificación
+#### Run the container
 
-Para verificar que tu aplicación está funcionando correctamente, abre un navegador web y navega a `http://localhost:8000`. También puedes usar herramientas como `curl` o `Postman` para hacer peticiones a tus endpoints y verificar que están respondiendo correctamente.
+```sh
+docker run -d -p 8000:8000 --name my_flask_app_container -v $(pwd)/data:/app/data -e PORT=8000 my_flask_app
+```
 
-#### Comando `curl` de ejemplo
+### Verification
+
+To verify that your application is working correctly, open a web browser and navigate to `http://localhost:8000`. You can also use tools like `curl` or Postman to make requests to your endpoints and verify that they are responding correctly.
+
+#### Example `curl` command
 
 ```sh
 curl http://localhost:8000/places
