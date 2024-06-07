@@ -1,0 +1,16 @@
+[
+    {"code": "US", "name": "United States"},
+    {"code": "CA", "name": "Canada"},
+    {"code": "GB", "name": "United Kingdom"},
+    {"code": "FR", "name": "France"},
+    {"code": "DE", "name": "Germany"},
+    {"code": "JP", "name": "Japan"},
+	{"code": "PR", "name": "Puerto Rico"},
+	{"code": "VI", "name": "Virgin Islands"},
+	{"code": "AS", "name": "American Samoa"},
+	{"code": "GU", "name": "Guam"},
+	{"code": "MP", "name": "Northern Mariana Islands"},
+	{"code": "UM", "name": "United States Minor Outlying Islands"},
+	{"code": "PW", "name": "Palau"},
+	{"code": "FM", "name": "Micronesia"}
+]
