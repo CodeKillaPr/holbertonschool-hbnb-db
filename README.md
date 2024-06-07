@@ -187,13 +187,13 @@ CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} api.review_manager:app"]
 #### Build the image
 
 ```sh
-docker build -t my_flask_app .
+docker build -t holberton_hbnb .
 ```
 
 #### Run the container
 
 ```sh
-docker run -d -p 8000:8000 --name my_flask_app_container -v $(pwd)/data:/app/data -e PORT=8000 my_flask_app
+docker run -d -p 8000:8000 --name holberton_hbnb_container -v $(pwd)/data:/app/data -e PORT=8000 holberton_hbnb
 ```
 
 ### Verification
