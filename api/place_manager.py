@@ -1,12 +1,13 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, Blueprint
 from model.place import Place
 from persistence.DataManager import DataManager
 
-app = Flask(__name__)
+
+place_manager_blueprint = Blueprint('place_manager', __name__)
 data_manager = DataManager()
 
 
-@app.route('/places', methods=['POST'])
+@place_manager_blueprint.route('/places', methods=['POST'])
 def create_place():
     required_fields = ['name', 'address', 'city_id', 'latitude', 'longitude', 'host_id',
                        'number_of_rooms', 'number_of_bathrooms', 'price_per_night', 'max_guests']
@@ -44,14 +45,14 @@ def create_place():
     return jsonify(place.to_dict()), 201
 
 
-@app.route('/places', methods=['GET'])
+@place_manager_blueprint.route('/places', methods=['GET'])
 def get_places():
     places = [place.to_dict()
               for place in data_manager.storage.get('Place', {}).values()]
     return jsonify(places), 200
 
 
-@app.route('/places/<place_id>', methods=['GET'])
+@place_manager_blueprint.route('/places/<place_id>', methods=['GET'])
 def get_place(place_id):
     place = data_manager.get(place_id, 'Place')
     if not place:
@@ -59,7 +60,7 @@ def get_place(place_id):
     return jsonify(place.to_dict()), 200
 
 
-@app.route('/places/<place_id>', methods=['PUT'])
+@place_manager_blueprint.route('/places/<place_id>', methods=['PUT'])
 def update_place(place_id):
     place = data_manager.get(place_id, 'Place')
     if not place:
@@ -95,14 +96,10 @@ def update_place(place_id):
     return jsonify(place.to_dict()), 200
 
 
-@app.route('/places/<place_id>', methods=['DELETE'])
+@place_manager_blueprint.route('/places/<place_id>', methods=['DELETE'])
 def delete_place(place_id):
     place = data_manager.get(place_id, 'Place')
     if not place:
         abort(404, description="Place not found")
     data_manager.delete(place_id, 'Place')
     return '', 204
-
-
-if __name__ == "__main__":
-    app.run()

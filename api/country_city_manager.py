@@ -1,19 +1,19 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, Blueprint
 from persistence.DataManager import DataManager
 from model.city import City
 
 
-app = Flask(__name__)
+country_city_manager_blueprint = Blueprint('country_city_manager', __name__)
 data_manager = DataManager()
 
 
-@app.route('/countries', methods=['GET'])
+@country_city_manager_blueprint.route('/countries', methods=['GET'])
 def get_countries():
     countries = list(data_manager.storage.get('Country', {}).values())
     return jsonify(countries), 200
 
 
-@app.route('/countries/<country_code>', methods=['GET'])
+@country_city_manager_blueprint.route('/countries/<country_code>', methods=['GET'])
 def get_country(country_code):
     country = data_manager.get(country_code, 'Country')
     if not country:
@@ -21,7 +21,7 @@ def get_country(country_code):
     return jsonify(country), 200
 
 
-@app.route('/countries/<country_code>/cities', methods=['GET'])
+@country_city_manager_blueprint.route('/countries/<country_code>/cities', methods=['GET'])
 def get_cities_by_country(country_code):
     if not data_manager.get(country_code, 'Country'):
         abort(404, description="Country not found")
@@ -30,7 +30,7 @@ def get_cities_by_country(country_code):
     return jsonify(cities), 200
 
 
-@app.route('/cities', methods=['POST'])
+@country_city_manager_blueprint.route('/cities', methods=['POST'])
 def create_city():
     if not request.json or not 'name' in request.json or not 'country_code' in request.json:
         abort(400, description="Missing required fields")
@@ -52,14 +52,14 @@ def create_city():
     return jsonify(city.to_dict()), 201
 
 
-@app.route('/cities', methods=['GET'])
+@country_city_manager_blueprint.route('/cities', methods=['GET'])
 def get_cities():
     cities = [city.to_dict()
               for city in data_manager.storage.get('City', {}).values()]
     return jsonify(cities), 200
 
 
-@app.route('/cities/<city_id>', methods=['GET'])
+@country_city_manager_blueprint.route('/cities/<city_id>', methods=['GET'])
 def get_city(city_id):
     city = data_manager.get(city_id, 'City')
     if not city:
@@ -67,7 +67,7 @@ def get_city(city_id):
     return jsonify(city.to_dict()), 200
 
 
-@app.route('/cities/<city_id>', methods=['PUT'])
+@country_city_manager_blueprint.route('/cities/<city_id>', methods=['PUT'])
 def update_city(city_id):
     city = data_manager.get(city_id, 'City')
     if not city:
@@ -86,14 +86,10 @@ def update_city(city_id):
     return jsonify(city.to_dict()), 200
 
 
-@app.route('/cities/<city_id>', methods=['DELETE'])
+@country_city_manager_blueprint.route('/cities/<city_id>', methods=['DELETE'])
 def delete_city(city_id):
     city = data_manager.get(city_id, 'City')
     if not city:
         abort(404, description="City not found")
     data_manager.delete(city_id, 'City')
     return '', 204
-
-
-if __name__ == "__main__":
-    app.run()

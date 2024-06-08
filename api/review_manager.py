@@ -1,12 +1,12 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, Blueprint
 from model.review import Review
 from persistence.DataManager import DataManager
 
-app = Flask(__name__)
+review_manager_blueprint = Blueprint('review_manager', __name__)
 data_manager = DataManager()
 
 
-@app.route('/places/<place_id>/reviews', methods=['POST'])
+@review_manager_blueprint.route('/places/<place_id>/reviews', methods=['POST'])
 def create_review(place_id):
     if not request.json or not all(key in request.json for key in ('user_id', 'rating', 'comment')):
         abort(400, description="Missing required fields")
@@ -37,21 +37,21 @@ def create_review(place_id):
     return jsonify(review.to_dict()), 201
 
 
-@app.route('/users/<user_id>/reviews', methods=['GET'])
+@review_manager_blueprint.route('/users/<user_id>/reviews', methods=['GET'])
 def get_user_reviews(user_id):
     reviews = [review.to_dict() for review in data_manager.storage.get(
         'Review', {}).values() if review.user_id == user_id]
     return jsonify(reviews), 200
 
 
-@app.route('/places/<place_id>/reviews', methods=['GET'])
+@review_manager_blueprint.route('/places/<place_id>/reviews', methods=['GET'])
 def get_place_reviews(place_id):
     reviews = [review.to_dict() for review in data_manager.storage.get(
         'Review', {}).values() if review.place_id == place_id]
     return jsonify(reviews), 200
 
 
-@app.route('/reviews/<review_id>', methods=['GET'])
+@review_manager_blueprint.route('/reviews/<review_id>', methods=['GET'])
 def get_review(review_id):
     review = data_manager.get(review_id, 'Review')
     if not review:
@@ -59,7 +59,7 @@ def get_review(review_id):
     return jsonify(review.to_dict()), 200
 
 
-@app.route('/reviews/<review_id>', methods=['PUT'])
+@review_manager_blueprint.route('/reviews/<review_id>', methods=['PUT'])
 def update_review(review_id):
     review = data_manager.get(review_id, 'Review')
     if not review:
@@ -79,14 +79,10 @@ def update_review(review_id):
     return jsonify(review.to_dict()), 200
 
 
-@app.route('/reviews/<review_id>', methods=['DELETE'])
+@review_manager_blueprint.route('/reviews/<review_id>', methods=['DELETE'])
 def delete_review(review_id):
     review = data_manager.get(review_id, 'Review')
     if not review:
         abort(404, description="Review not found")
     data_manager.delete(review_id, 'Review')
     return '', 204
-
-
-if __name__ == "__main__":
-    app.run()

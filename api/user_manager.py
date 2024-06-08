@@ -1,13 +1,13 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, Blueprint
 from model.user import User
 from persistence.DataManager import DataManager
-import os
 
-app = Flask(__name__)
+
+user_manager_blueprint = Blueprint('user_manager', __name__)
 data_manager = DataManager()
 
 
-@app.route('/users', methods=['POST'])
+@user_manager_blueprint.route('/users', methods=['POST'])
 def create_user():
     if not request.json or not 'email' in request.json or not 'password' in request.json:
         abort(400, description="Missing required fields")
@@ -32,14 +32,14 @@ def create_user():
     return jsonify(user.to_dict()), 201
 
 
-@app.route('/users', methods=['GET'])
+@user_manager_blueprint.route('/users', methods=['GET'])
 def get_users():
     users = [user.to_dict()
              for user in data_manager.storage.get('User', {}).values()]
     return jsonify(users), 200
 
 
-@app.route('/users/<user_id>', methods=['GET'])
+@user_manager_blueprint.route('/users/<user_id>', methods=['GET'])
 def get_user(user_id):
     user = data_manager.get(user_id, 'User')
     if user is None:
@@ -47,7 +47,7 @@ def get_user(user_id):
     return jsonify(user.to_dict()), 200
 
 
-@app.route('/users/<user_id>', methods=['PUT'])
+@user_manager_blueprint.route('/users/<user_id>', methods=['PUT'])
 def update_user(user_id):
     user = data_manager.get(user_id, 'User')
     if user is None:
@@ -65,14 +65,10 @@ def update_user(user_id):
     return jsonify(user.to_dict()), 200
 
 
-@app.route('/users/<user_id>', methods=['DELETE'])
+@user_manager_blueprint.route('/users/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = data_manager.get(user_id, 'User')
     if user is None:
         abort(404, description="User not found")
     data_manager.delete(user_id, 'User')
     return '', 204
-
-
-if __name__ == "__main__":
-    app.run()
