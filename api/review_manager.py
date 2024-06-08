@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, abort
 from model.review import Review
 from persistence.DataManager import DataManager
-import os
+
 app = Flask(__name__)
 data_manager = DataManager()
 
@@ -89,5 +89,4 @@ def delete_review(review_id):
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run()
