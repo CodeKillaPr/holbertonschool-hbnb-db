@@ -1,26 +1,26 @@
-# Use Alpine Linux as base image
+# Usa una imagen base de Alpine Linux con Python 3.9
 FROM python:3.9-alpine
 
-# Set environment variables
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_ENV=production
-
-# Install system dependencies
-RUN apk add --no-cache gcc musl-dev linux-headers
-
-# Set working directory
+# Establece el directorio de trabajo en /app
 WORKDIR /app
 
-# Install Python dependencies
-COPY requirements.txt requirements.txt
+# Copia el archivo requirements.txt en el directorio de trabajo
+COPY requirements.txt .
+
+# Instala las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# Copia el resto del código de la aplicación en el directorio de trabajo
 COPY . .
 
-# Expose port 8000
-EXPOSE 8000
+# Establece una variable de entorno para el puerto
+ENV PORT 8000
 
-# Command to run the application using Gunicorn
-CMD ["gunicorn", "--workers=4", "--bind=0.0.0.0:8000", "app:app"]
+# Define un volumen para el almacenamiento persistente
+VOLUME /app/data
+
+# Expone el puerto configurado
+EXPOSE $PORT
+
+# Define el comando para ejecutar Gunicorn
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT app:app"]
