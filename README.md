@@ -96,16 +96,88 @@ classDiagram
         +amenity_ids: list
     }
 
-    BaseModel <|-- City
-    BaseModel <|-- Review
-    BaseModel <|-- Place
-    DataManager --> BaseModel : manages
-
     class User {
         +email: String
         +password: String
     }
+
+    class Amenity {
+        +name: String
+    }
+
+    class FlaskApp {
+        +register_blueprint(user_manager_blueprint): void
+        +register_blueprint(country_city_manager_blueprint): void
+        +register_blueprint(amenity_blueprint): void
+        +register_blueprint(place_manager_blueprint): void
+        +register_blueprint(review_manager_blueprint): void
+        +run(): void
+    }
+
+    class UserManager {
+        +create_user(): void
+        +get_users(): void
+        +get_user(user_id: String): void
+        +update_user(user_id: String): void
+        +delete_user(user_id: String): void
+    }
+
+    class ReviewManager {
+        +create_review(place_id: String): void
+        +get_user_reviews(user_id: String): void
+        +get_place_reviews(place_id: String): void
+        +get_review(review_id: String): void
+        +update_review(review_id: String): void
+        +delete_review(review_id: String): void
+    }
+
+    class PlaceManager {
+        +create_place(): void
+        +get_places(): void
+        +get_place(place_id: String): void
+        +update_place(place_id: String): void
+        +delete_place(place_id: String): void
+    }
+
+    class CountryCityManager {
+        +get_countries(): void
+        +get_country(country_code: String): void
+        +get_cities_by_country(country_code: String): void
+        +create_city(): void
+        +get_cities(): void
+        +get_city(city_id: String): void
+        +update_city(city_id: String): void
+        +delete_city(city_id: String): void
+    }
+
+    class AmenityManager {
+        +create_amenity(): void
+        +get_amenities(): void
+        +get_amenity(amenity_id: String): void
+        +update_amenity(amenity_id: String): void
+        +delete_amenity(amenity_id: String): void
+    }
+
+    BaseModel <|-- City
+    BaseModel <|-- Review
+    BaseModel <|-- Place
     BaseModel <|-- User
+    BaseModel <|-- Amenity
+
+    DataManager --> BaseModel : manages
+
+    FlaskApp --> user_manager
+    FlaskApp --> country_city_manager
+    FlaskApp --> amenity_manager
+    FlaskApp --> place_manager
+    FlaskApp --> review_manager
+
+    user_manager ..> UserManager
+    country_city_manager ..> CountryCityManager
+    amenity_manager ..> AmenityManager
+    place_manager ..> PlaceManager
+    review_manager ..> ReviewManager
+
 ```
 
 #### Deployment Diagram
