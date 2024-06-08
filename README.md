@@ -189,6 +189,14 @@ stateDiagram-v2
             [*] --> FlaskApplication
             FlaskApplication --> Gunicorn
             Gunicorn --> Flask
+            Flask --> Blueprints
+            state Blueprints {
+                user_manager_blueprint
+                country_city_manager_blueprint
+                amenity_blueprint
+                place_manager_blueprint
+                review_manager_blueprint
+            }
         }
     }
 
