@@ -1,5 +1,3 @@
-# tests/test_user_endpoints.py
-
 import unittest
 import json
 from api.user_manager import app, data_manager
