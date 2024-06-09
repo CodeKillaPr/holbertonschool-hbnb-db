@@ -293,5 +293,10 @@ To verify that your application is working correctly, open a web browser and nav
 ```sh
 curl http://localhost:8000/places
 ```
+## BUGS
 
+N/A
+
+## Authors
+Nelson Betancourt Aponte
 ---
