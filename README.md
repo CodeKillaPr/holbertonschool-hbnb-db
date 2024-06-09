@@ -297,6 +297,6 @@ curl http://localhost:8000/places
 
 N/A
 
-## Authors
+## Author
 Nelson Betancourt Aponte
 ---
