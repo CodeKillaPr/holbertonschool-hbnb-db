@@ -45,6 +45,14 @@ This project is a place management application based on Flask, which includes fu
 - **PUT /amenities/{amenity_id}**: Update an existing amenity.
 - **DELETE /amenities/{amenity_id}**: Delete an amenity.
 
+#### app
+##### get every endpoint from a flask image
+- *app.register_blueprint(user_manager_blueprint)
+- *app.register_blueprint(country_city_manager_blueprint)
+- *app.register_blueprint(amenity_blueprint)
+- *app.register_blueprint(place_manager_blueprint)
+- *app.register_blueprint(review_manager_blueprint)
+
 ### UML Diagram
 
 #### Class Diagram
