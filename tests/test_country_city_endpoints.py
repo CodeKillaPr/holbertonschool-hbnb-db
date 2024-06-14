@@ -1,6 +1,7 @@
 import unittest
 import json
-from api.country_city_manager import app, data_manager
+from api.country_city_manager import data_manager
+from app import app
 from model.city import City
 
 
