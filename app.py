@@ -7,6 +7,12 @@ from api.review_manager import review_manager_blueprint
 
 app = Flask(__name__)
 
+
+@app.route('/')
+def home():
+    return 'Welcome to the holbertonbnb api'
+
+
 app.register_blueprint(user_manager_blueprint)
 app.register_blueprint(country_city_manager_blueprint)
 app.register_blueprint(amenity_blueprint)
