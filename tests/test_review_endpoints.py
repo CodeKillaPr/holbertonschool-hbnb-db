@@ -1,6 +1,7 @@
 import unittest
 import json
-from api.review_manager import app, data_manager
+from api.review_manager import data_manager
+from app import app
 from model.review import Review
 from model.place import Place
 from model.user import User

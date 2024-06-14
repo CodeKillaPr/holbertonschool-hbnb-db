@@ -1,6 +1,7 @@
 import unittest
 import json
-from api.user_manager import app, data_manager
+from api.user_manager import data_manager
+from app import app
 from model.user import User
 
 

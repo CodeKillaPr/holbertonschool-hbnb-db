@@ -1,6 +1,7 @@
 import unittest
 import json
-from api.amenity_manager import app, data_manager
+from api.amenity_manager import data_manager
+from app import app
 from model.amenity import Amenity
 
 

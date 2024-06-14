@@ -1,6 +1,7 @@
 import unittest
 import json
-from api.place_manager import app, data_manager
+from api.place_manager import data_manager
+from app import app
 from model.place import Place
 from model.city import City
 from model.user import User
