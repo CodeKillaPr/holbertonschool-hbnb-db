@@ -1,25 +1,11 @@
-import json
 from persistence.IPersistenceManager import IPersistenceManager
-from model.BaseModel import BaseModel
 
 
 class DataManager(IPersistenceManager):
     def __init__(self):
         self.storage = {}
-        self.load_countries()
-
-    def load_countries(self):
-        try:
-            with open('countries.json', 'r') as f:
-                countries = json.load(f)
-            self.storage['Country'] = {
-                country['code']: country for country in countries}
-        except FileNotFoundError:
-            self.storage['Country'] = {}
 
     def save(self, entity):
-        if not isinstance(entity, BaseModel):
-            raise TypeError("entity must be an instance of BaseModel")
         entity_type = type(entity).__name__
         if entity_type not in self.storage:
             self.storage[entity_type] = {}
@@ -28,12 +14,12 @@ class DataManager(IPersistenceManager):
 
     def get(self, entity_id, entity_type):
         if entity_type in self.storage:
-            return self.storage[entity_type].get(entity_id)
+            for entity in self.storage[entity_type].values():
+                if entity.id == entity_id or entity.code == entity_id:
+                    return entity
         return None
 
     def update(self, entity):
-        if not isinstance(entity, BaseModel):
-            raise TypeError("entity must be an instance of BaseModel")
         entity_type = type(entity).__name__
         if entity_type in self.storage and entity.id in self.storage[entity_type]:
             self.storage[entity_type][entity.id] = entity
