@@ -1,9 +1,20 @@
 from persistence.IPersistenceManager import IPersistenceManager
+import json
 
 
 class DataManager(IPersistenceManager):
     def __init__(self):
         self.storage = {}
+        self.load_countries()
+
+    def load_countries(self):
+        try:
+            with open('countries.json', 'r') as f:
+                countries = json.load(f)
+            self.storage['Country'] = {
+                country['code']: country for country in countries}
+        except FileNotFoundError:
+            self.storage['Country'] = {}
 
     def save(self, entity):
         entity_type = type(entity).__name__
@@ -14,9 +25,7 @@ class DataManager(IPersistenceManager):
 
     def get(self, entity_id, entity_type):
         if entity_type in self.storage:
-            for entity in self.storage[entity_type].values():
-                if entity.id == entity_id or entity.code == entity_id:
-                    return entity
+            return self.storage[entity_type].get(entity_id)
         return None
 
     def update(self, entity):

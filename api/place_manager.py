@@ -9,39 +9,26 @@ data_manager = DataManager()
 
 @place_manager_blueprint.route('/places', methods=['POST'])
 def create_place():
-    required_fields = ['name', 'address', 'city_id', 'latitude', 'longitude', 'host_id',
-                       'number_of_rooms', 'number_of_bathrooms', 'price_per_night', 'max_guests']
-    if not request.json or not all(field in request.json for field in required_fields):
+    if not request.json:
         abort(400, description="Missing required fields")
 
     data = request.json
-    name = data['name']
-    description = data.get('description', '')
-    address = data['address']
-    city_id = data['city_id']
-    latitude = data['latitude']
-    longitude = data['longitude']
-    host_id = data['host_id']
-    number_of_rooms = data['number_of_rooms']
-    number_of_bathrooms = data['number_of_bathrooms']
-    price_per_night = data['price_per_night']
-    max_guests = data['max_guests']
-    amenity_ids = data.get('amenity_ids', [])
+    place = Place(
+        name=data.get('name'),
+        description=data.get('description'),
+        address=data.get('address'),
+        city_id=data.get('city_id'),
+        latitude=data.get('latitude'),
+        longitude=data.get('longitude'),
+        host_id=data.get('host_id'),
+        number_of_rooms=data.get('number_of_rooms'),
+        number_of_bathrooms=data.get('number_of_bathrooms'),
+        price_per_night=data.get('price_per_night'),
+        max_guests=data.get('max_guests'),
+        amenity_ids=data.get('amenity_ids')
+    )
 
-    # Validar existencia de city_id
-    if not data_manager.get(city_id, 'City'):
-        abort(400, description="Invalid city_id")
-
-    # Validar existencia de amenity_ids
-    for amenity_id in amenity_ids:
-        if not data_manager.get(amenity_id, 'Amenity'):
-            abort(400, description=f"Invalid amenity_id: {amenity_id}")
-
-    place = Place(name=name, description=description, address=address, city_id=city_id, latitude=latitude, longitude=longitude,
-                  host_id=host_id, number_of_rooms=number_of_rooms, number_of_bathrooms=number_of_bathrooms,
-                  price_per_night=price_per_night, max_guests=max_guests, amenity_ids=amenity_ids)
     data_manager.save(place)
-
     return jsonify(place.to_dict()), 201
 
 
@@ -86,11 +73,6 @@ def update_place(place_id):
     place.price_per_night = data.get('price_per_night', place.price_per_night)
     place.max_guests = data.get('max_guests', place.max_guests)
     place.amenity_ids = data.get('amenity_ids', place.amenity_ids)
-
-    # Validar existencia de amenity_ids
-    for amenity_id in place.amenity_ids:
-        if not data_manager.get(amenity_id, 'Amenity'):
-            abort(400, description=f"Invalid amenity_id: {amenity_id}")
 
     data_manager.update(place)
     return jsonify(place.to_dict()), 200

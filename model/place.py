@@ -1,4 +1,5 @@
 from model.BaseModel import BaseModel
+import uuid
 
 
 class Place(BaseModel):
@@ -17,6 +18,9 @@ class Place(BaseModel):
         self.price_per_night = price_per_night
         self.max_guests = max_guests
         self.amenity_ids = amenity_ids
+
+    def get_city_id(self):
+        return self.city_id
 
     def __str__(self):
         return f"[Place] ({self.id}) {self.to_dict()}"

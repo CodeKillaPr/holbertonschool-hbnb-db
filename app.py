@@ -20,4 +20,4 @@ app.register_blueprint(place_manager_blueprint)
 app.register_blueprint(review_manager_blueprint)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
