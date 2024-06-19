@@ -15,17 +15,6 @@ def create_review(place_id):
     rating = request.json['rating']
     comment = request.json['comment']
 
-    # Validar existencia de place_id y user_id
-    if not data_manager.get(place_id, 'Place'):
-        abort(400, description="Invalid place_id")
-    if not data_manager.get(user_id, 'User'):
-        abort(400, description="Invalid user_id")
-
-    # Validar que el usuario no sea el host del lugar
-    place = data_manager.get(place_id, 'Place')
-    if place.host_id == user_id:
-        abort(400, description="Hosts cannot review their own place")
-
     # Validar rango de rating
     if not (1 <= rating <= 5):
         abort(400, description="Rating must be between 1 and 5")
