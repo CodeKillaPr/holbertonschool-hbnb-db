@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, abort, Blueprint
+from flask import request, jsonify, abort, Blueprint
 from model.user import User
 from persistence.DataManager import DataManager
 
