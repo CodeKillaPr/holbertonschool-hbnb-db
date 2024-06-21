@@ -9,11 +9,10 @@ data_manager = DataManager()
 
 @user_manager_blueprint.route('/users', methods=['POST'])
 def create_user():
-    if not request.json or not 'email' in request.json or not 'password' in request.json:
+    if not request.json or not 'email' in request.json:
         abort(400, description="Missing required fields")
 
     email = request.json['email']
-    password = request.json['password']
     first_name = request.json.get('first_name', '')
     last_name = request.json.get('last_name', '')
 
@@ -25,8 +24,7 @@ def create_user():
     if existing_users:
         abort(409, description="Email already exists")
 
-    user = User(email=email, password=password,
-                first_name=first_name, last_name=last_name)
+    user = User(email=email, first_name=first_name, last_name=last_name)
     data_manager.save(user)
 
     return jsonify(user.to_dict()), 201
@@ -57,7 +55,6 @@ def update_user(user_id):
         abort(400, description="Missing required fields")
 
     user.email = request.json.get('email', user.email)
-    user.password = request.json.get('password', user.password)
     user.first_name = request.json.get('first_name', user.first_name)
     user.last_name = request.json.get('last_name', user.last_name)
 
