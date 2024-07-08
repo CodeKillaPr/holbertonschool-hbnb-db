@@ -1,31 +1,44 @@
 import unittest
-from model.user import User
+from unittest.mock import MagicMock
 from persistence.DataManager import DataManager
 
 
 class TestDataManager(unittest.TestCase):
+
     def setUp(self):
         self.data_manager = DataManager()
-        self.user = User(email="test@example.com", password="password")
+
+    def tearDown(self):
+        pass
 
     def test_save_and_get(self):
-        self.data_manager.save(self.user)
-        retrieved_user = self.data_manager.get(self.user.id, 'User')
-        self.assertEqual(retrieved_user.email, "test@example.com")
+        mock_entity = MagicMock()
+        mock_entity.id = 1
+        self.data_manager.save(mock_entity)
+
+        saved_entity = self.data_manager.get(1, type(mock_entity).__name__)
+        self.assertEqual(saved_entity, mock_entity)
 
     def test_update(self):
-        self.data_manager.save(self.user)
-        self.user.first_name = "Test"
-        self.data_manager.update(self.user)
-        retrieved_user = self.data_manager.get(self.user.id, 'User')
-        self.assertEqual(retrieved_user.first_name, "Test")
+        mock_entity = MagicMock()
+        mock_entity.id = 1
+        self.data_manager.save(mock_entity)
+
+        mock_entity.some_attribute = "updated_value"
+        self.data_manager.update(mock_entity)
+
+        updated_entity = self.data_manager.get(1, type(mock_entity).__name__)
+        self.assertEqual(updated_entity.some_attribute, "updated_value")
 
     def test_delete(self):
-        self.data_manager.save(self.user)
-        self.data_manager.delete(self.user.id, 'User')
-        retrieved_user = self.data_manager.get(self.user.id, 'User')
-        self.assertIsNone(retrieved_user)
+        mock_entity = MagicMock()
+        mock_entity.id = 1
+        self.data_manager.save(mock_entity)
+
+        self.data_manager.delete(1, type(mock_entity).__name__)
+        deleted_entity = self.data_manager.get(1, type(mock_entity).__name__)
+        self.assertIsNone(deleted_entity)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

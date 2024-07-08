@@ -1,87 +1,105 @@
 from flask import request, jsonify, abort, Blueprint
 from model.place import Place
 from persistence.DataManager import DataManager
-
+from db import db
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from model.user import User
 
 place_manager_blueprint = Blueprint('place_manager', __name__)
 data_manager = DataManager()
 
 
 @place_manager_blueprint.route('/places', methods=['POST'])
+@jwt_required()
 def create_place():
+    user = User.query.get(get_jwt_identity())
+    if not user.id == Place.query.get(user.id).host_id:
+        abort(403, description="owner already exists for this place")
+
     if not request.json:
         abort(400, description="Missing required fields")
 
-    data = request.json
-    place = Place(
-        name=data.get('name'),
-        description=data.get('description'),
-        address=data.get('address'),
-        city_id=data.get('city_id'),
-        latitude=data.get('latitude'),
-        longitude=data.get('longitude'),
-        host_id=data.get('host_id'),
-        number_of_rooms=data.get('number_of_rooms'),
-        number_of_bathrooms=data.get('number_of_bathrooms'),
-        price_per_night=data.get('price_per_night'),
-        max_guests=data.get('max_guests'),
-        amenity_ids=data.get('amenity_ids')
-    )
+    if Place.query.filter_by(name=request.json.get('name', '')).first():
+        abort(409, description="Place already exists")
 
-    data_manager.save(place)
+    place = Place(
+        name=request.json.get('name', ''),
+        description=request.json.get('description', ''),
+        address=request.json.get('address', ''),
+        city_id=request.json.get('city_id', ''),
+        latitude=request.json.get('latitude', ''),
+        longitude=request.json.get('longitude', ''),
+        host_id=request.json.get('host_id', ''),
+        number_of_rooms=request.json.get('number_of_rooms', ''),
+        number_of_bathrooms=request.json.get('number_of_bathrooms', ''),
+        price_per_night=request.json.get('price_per_night', ''),
+        max_guests=request.json.get('max_guests', ''),
+        amenity_ids=request.json.get('amenity_ids', '')
+    )
+    db.session.add(place)
+    db.session.commit()
+
     return jsonify(place.to_dict()), 201
 
 
 @place_manager_blueprint.route('/places', methods=['GET'])
+@jwt_required()
 def get_places():
-    places = [place.to_dict()
-              for place in data_manager.storage.get('Place', {}).values()]
-    return jsonify(places), 200
+    user = User.query.get(get_jwt_identity())
+    if not user.is_admin:
+        abort(403, description="Admin rights required")
+
+    places = Place.query.all()
+    places_list = [place.to_dict() for place in places]
+    return jsonify(places_list), 200
 
 
 @place_manager_blueprint.route('/places/<place_id>', methods=['GET'])
 def get_place(place_id):
-    place = data_manager.get(place_id, 'Place')
+    place = Place.query.get(place_id)
     if not place:
         abort(404, description="Place not found")
     return jsonify(place.to_dict()), 200
 
 
 @place_manager_blueprint.route('/places/<place_id>', methods=['PUT'])
+@jwt_required()
 def update_place(place_id):
-    place = data_manager.get(place_id, 'Place')
-    if not place:
-        abort(404, description="Place not found")
+    user = User.query.get(get_jwt_identity())
+    if not user.is_admin or not user.id == Place.query.get(place_id).host_id:
+        abort(403, description="Admin rights required or owner of the place to edit")
 
     if not request.json:
         abort(400, description="Missing required fields")
 
-    data = request.json
-    place.name = data.get('name', place.name)
-    place.description = data.get('description', place.description)
-    place.address = data.get('address', place.address)
-    if 'city_id' in data:
-        place.city_id = data['city_id']
-        if not data_manager.get(place.city_id, 'City'):
-            abort(400, description="Invalid city_id")
-    place.latitude = data.get('latitude', place.latitude)
-    place.longitude = data.get('longitude', place.longitude)
-    place.host_id = data.get('host_id', place.host_id)
-    place.number_of_rooms = data.get('number_of_rooms', place.number_of_rooms)
-    place.number_of_bathrooms = data.get(
-        'number_of_bathrooms', place.number_of_bathrooms)
-    place.price_per_night = data.get('price_per_night', place.price_per_night)
-    place.max_guests = data.get('max_guests', place.max_guests)
-    place.amenity_ids = data.get('amenity_ids', place.amenity_ids)
+    place = Place.query.get(place_id)
+    if not place:
+        abort(404, description="Place not found")
 
-    data_manager.update(place)
+    if 'name' in request.json and Place.query.filter_by(name=request.json['name']).first():
+        abort(409, description="Place with given name already exists")
+
+    fields_to_update = ['name', 'description', 'address', 'city_id', 'latitude', 'longitude', 'host_id',
+                        'number_of_rooms', 'number_of_bathrooms', 'price_per_night', 'max_guests', 'amenity_ids']
+    for field in fields_to_update:
+        if field in request.json:
+            setattr(place, field, request.json[field])
+
+    db.session.commit()
     return jsonify(place.to_dict()), 200
 
 
 @place_manager_blueprint.route('/places/<place_id>', methods=['DELETE'])
+@jwt_required()
 def delete_place(place_id):
-    place = data_manager.get(place_id, 'Place')
+    user = User.query.get(get_jwt_identity())
+    if not user.is_admin or not user.id == Place.query.get(place_id).host_id:
+        abort(403, description="Admin rights required or owner of the place to delete")
+
+    place = Place.query.get(place_id)
     if not place:
         abort(404, description="Place not found")
-    data_manager.delete(place_id, 'Place')
-    return '', 204
+
+    db.session.delete(place)
+    db.session.commit()
+    return jsonify({"message": "Place deleted successfully"}), 200

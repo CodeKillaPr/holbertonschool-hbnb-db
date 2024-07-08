@@ -1,5 +1,6 @@
 from persistence.IPersistenceManager import IPersistenceManager
 import json
+from db import db
 
 
 class DataManager(IPersistenceManager):

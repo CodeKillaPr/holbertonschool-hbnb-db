@@ -2,10 +2,12 @@ from flask import request, jsonify, abort, Blueprint
 from model.user import User
 from persistence.DataManager import DataManager
 from db import db
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 
 user_manager_blueprint = Blueprint('user_manager', __name__)
 data_manager = DataManager()
+
+# Endpoint protegido para usuarios autenticados
 
 
 @user_manager_blueprint.route('/protected', methods=['GET'])
@@ -18,12 +20,14 @@ def protected():
         abort(404, description="User not found")
 
     if user.is_admin:
-        return jsonify(message=f"Welcome, admin {user.first_name}.", user_details={"id": user.id, "email": user.email}), 200
+        return jsonify(message="Welcome, admin user.", user_details={"id": user.id, "email": user.email}), 200
     else:
-        return jsonify(message=f"Welcome, regular user {user.first_name}.", user_details={"id": user.id, "email": user.email}), 200
+        return jsonify(message="Welcome, regular user.", user_details={"id": user.id, "email": user.email}), 200
+
+# Login de usuario con JWT que incluye información de rol
 
 
-@ user_manager_blueprint.route('/login', methods=['POST'])
+@user_manager_blueprint.route('/login', methods=['POST'])
 def login():
     if not request.json or 'email' not in request.json or 'password' not in request.json:
         abort(400, description="Missing required fields")
@@ -43,11 +47,13 @@ def login():
         identity=user.id, additional_claims=additional_claims)
     return jsonify(access_token=access_token), 200
 
+# Crear usuario (solo accesible por administradores)
 
-@ user_manager_blueprint.route('/users', methods=['POST'])
-@ jwt_required()
+
+@user_manager_blueprint.route('/users', methods=['POST'])
+@jwt_required()
 def create_user():
-    claims = get_jwt_identity()
+    claims = get_jwt()
     if not claims.get('is_admin'):
         abort(403, description="Admin rights required")
 
@@ -73,38 +79,42 @@ def create_user():
     db.session.commit()
     return jsonify({"msg": "User created successfully", "user_id": user.id}), 201
 
+# Obtener todos los usuarios (solo accesible por administradores)
+
 
 @user_manager_blueprint.route('/users', methods=['GET'])
 @jwt_required()
 def get_users():
-    user = User.query.get(get_jwt_identity())
-
-    if not user.is_admin:
+    claims = get_jwt()
+    if not claims.get('is_admin'):
         abort(403, description="Admin rights required")
 
     users = User.query.all()
     return jsonify([user.to_dict() for user in users]), 200
 
+# Obtener un usuario específico (solo accesible por administradores)
 
-@ user_manager_blueprint.route('/users/<user_id>', methods=['GET'])
-# @jwt_required()
+
+@user_manager_blueprint.route('/users/<user_id>', methods=['GET'])
+@jwt_required()
 def get_user(user_id):
-    # claims = get_jwt_identity()
-    # if not claims.get('is_admin'):
-    # abort(403, description="Admin rights required")
+    claims = get_jwt()
+    if not claims.get('is_admin'):
+        abort(403, description="Admin rights required")
 
     user = User.query.get(user_id)
     if user is None:
         abort(404, description="User not found")
     return jsonify(user.to_dict()), 200
 
+# Actualizar un usuario específico (solo accesible por administradores)
+
 
 @user_manager_blueprint.route('/users/<user_id>', methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
-    user = User.query.get(get_jwt_identity())
-
-    if not user.is_admin:
+    claims = get_jwt()
+    if not claims.get('is_admin'):
         abort(403, description="Admin rights required")
 
     user = User.query.get(user_id)
@@ -121,13 +131,14 @@ def update_user(user_id):
     db.session.commit()
     return jsonify(user.to_dict()), 200
 
+# Eliminar un usuario específico (solo accesible por administradores)
 
-@ user_manager_blueprint.route('/users/<user_id>', methods=['DELETE'])
-@ jwt_required()
+
+@user_manager_blueprint.route('/users/<user_id>', methods=['DELETE'])
+@jwt_required()
 def delete_user(user_id):
-    user = User.query.get(get_jwt_identity())
-
-    if not user.is_admin:
+    claims = get_jwt()
+    if not claims.get('is_admin'):
         abort(403, description="Admin rights required")
 
     admin_id = User.query.filter_by(is_admin=True).first().id

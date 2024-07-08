@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "8000:5000"
+    environment:
+      ENV: development
+    depends_on:
+      - mysql-db
+
+  mysql-db:
+    image: mysql:5.7
+    platform: linux/amd64  # Especifica la plataforma como amd64 (x86_64)
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
