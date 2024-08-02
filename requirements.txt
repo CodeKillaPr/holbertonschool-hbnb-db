@@ -2,3 +2,4 @@ Flask
 Flask-JWT-Extended
 Flask-Migrate
 pymysql
+flask_bcrypt

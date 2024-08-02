@@ -17,9 +17,12 @@ class Place(BaseModel):
     max_guests = db.Column(db.Integer, default=0)
     price_per_night = db.Column(db.Integer, default=0)
     amenity_ids = []
+    location = db.Column(db.String(128), nullable=False)
+    img_url = db.Column(db.String(128), nullable=True)
+    amenity = db.Column(db.String(128), nullable=True)
 
     def __init__(self, name, description, address, city_id, latitude, longitude, host_id,
-                 number_of_rooms, number_of_bathrooms, price_per_night, max_guests, amenity_ids=[], **kwargs):
+                 number_of_rooms, number_of_bathrooms, price_per_night, max_guests, location, img_url, amenity, amenity_ids=[], **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.description = description
@@ -33,6 +36,9 @@ class Place(BaseModel):
         self.price_per_night = price_per_night
         self.max_guests = max_guests
         self.amenity_ids = amenity_ids
+        self.location = location
+        self.img_url = img_url
+        self.amenity = amenity
 
     def get_city_id(self):
         return self.city_id
@@ -56,5 +62,8 @@ class Place(BaseModel):
             'price_per_night': self.price_per_night,
             'amenity_ids': self.amenity_ids,
             'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            'updated_at': self.updated_at.isoformat(),
+            'location': self.location,
+            'img_url': self.img_url,
+            'amenity': self.amenity
         }

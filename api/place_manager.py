@@ -10,11 +10,11 @@ data_manager = DataManager()
 
 
 @place_manager_blueprint.route('/places', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_place():
-    user = User.query.get(get_jwt_identity())
-    if not user.id == Place.query.get(user.id).host_id:
-        abort(403, description="owner already exists for this place")
+    # user = User.query.get(get_jwt_identity())
+    # if not user.id == Place.query.get(user.id).host_id:
+    # abort(403, description="owner already exists for this place")
 
     if not request.json:
         abort(400, description="Missing required fields")
@@ -34,7 +34,10 @@ def create_place():
         number_of_bathrooms=request.json.get('number_of_bathrooms', ''),
         price_per_night=request.json.get('price_per_night', ''),
         max_guests=request.json.get('max_guests', ''),
-        amenity_ids=request.json.get('amenity_ids', '')
+        amenity_ids=request.json.get('amenity_ids', ''),
+        location=request.json.get('location', ''),
+        img_url=request.json.get('img_url', ''),
+        amenity=request.json.get('amenity', '')
     )
     db.session.add(place)
     db.session.commit()

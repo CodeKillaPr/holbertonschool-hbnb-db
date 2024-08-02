@@ -275,13 +275,13 @@ CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} api.review_manager:app"]
 #### Build the image
 
 ```sh
-docker build -t holberton_hbnb .
+docker build -t <name of the image> .
 ```
 
 #### Run the container
 
 ```sh
-docker run -d -p 8000:8000 --name holberton_hbnb_container -v $(pwd)/data:/app/data -e PORT=8000 holberton_hbnb
+docker-compose up
 ```
 
 ### Verification

@@ -8,13 +8,14 @@ from api.amenity_manager import amenity_blueprint
 from api.place_manager import place_manager_blueprint
 from api.review_manager import review_manager_blueprint
 from flask_migrate import Migrate
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 
 
 class Config(object):
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
     JWT_SECRET_KEY = 'super-secret'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
 
 
 class DevelopmentConfig(Config):
@@ -22,14 +23,12 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:my-secret-pw@mysql-db/hbnb'
     DEBUG = False
 
 
 environment_config = DevelopmentConfig if os.environ.get(
     'ENV') == 'development' else ProductionConfig
 app.config.from_object(environment_config)
-
 db.init_app(app)
 jwt = JWTManager(app)
 

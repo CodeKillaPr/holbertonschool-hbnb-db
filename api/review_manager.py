@@ -16,18 +16,21 @@ def create_review(place_id):
     if not user:
         abort(404, description="User not found")
 
-    if not request.json or not all(key in request.json for key in ('user_id', 'rating', 'comment')):
+    if not request.json or 'rating' not in request.json or 'comment' not in request.json:
         abort(400, description="Missing required fields")
 
-    user_id = request.json['user_id']
-    rating = request.json['rating']
+    try:
+        rating = int(request.json['rating'])
+    except (ValueError, TypeError):
+        abort(400, description="Rating must be an integer")
+
     comment = request.json['comment']
 
     if not (1 <= rating <= 5):
         abort(400, description="Rating must be between 1 and 5")
 
     review = Review(
-        user_id=user_id,
+        user_id=user.id,
         place_id=place_id,
         rating=rating,
         comment=comment
@@ -71,7 +74,12 @@ def update_review(review_id):
     if not request.json:
         abort(400, description="Missing required fields")
 
-    review.rating = request.json.get('rating', review.rating)
+    if 'rating' in request.json:
+        try:
+            review.rating = int(request.json['rating'])
+        except (ValueError, TypeError):
+            abort(400, description="Rating must be an integer")
+
     review.comment = request.json.get('comment', review.comment)
 
     if not (1 <= review.rating <= 5):
